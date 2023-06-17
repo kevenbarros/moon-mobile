@@ -1,17 +1,23 @@
 import * as React from 'react';
-import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, Text } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 
-function Header({ navigation, setData }) {
+function Header({ navigation, picture }) {
+  const { user, token, token_google, createExpenseLoading } = useSelector(
+    (state) => state.user
+  );
+  console.log("foto", picture)
   return (
     <View style={styles.box} >
       <Image
         style={styles.logo}
         source={require('../../imgs/logo.png')}
       />
-      <TouchableOpacity onPress={() => setData([])}>
+      {createExpenseLoading && <Text>oiii</Text>}
+      <TouchableOpacity>
         <Image
           style={styles.perfil}
-          source={require('../../imgs/Mock-ft-perf.png')}
+          source={{ uri: picture }}
         />
       </TouchableOpacity>
 
@@ -30,7 +36,8 @@ const styles = StyleSheet.create({
   },
   perfil: {
     height: 40,
-    width: 40
+    width: 40,
+    borderRadius: 10
   }
 });
 

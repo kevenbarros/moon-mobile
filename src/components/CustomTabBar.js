@@ -1,7 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, View, StyleSheet, } from 'react-native';
 import { Feather } from '@expo/vector-icons'
-import Creation from '../components/creation/Creation'
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -25,16 +24,26 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ({ state, navigation }) => {
+export default ({ state, navigation, token }) => {
   const [buttonState, setButtonState] = React.useState('Home')
+  const [profile, setProfile] = React.useState({})
+
   const goTo = (screenName) => {
     setButtonState(screenName)
-    navigation.navigate(screenName);
+    navigation.navigate(screenName, { profile: profile });
   }
+  async function loadProfile() {
+    const response = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo?alt=json&access_token=${token}`)
+    const userInfo = await response.json()
+    setProfile(userInfo)
+    navigation.navigate("Home", { profile: userInfo })
+  }
+  React.useEffect(() => {
+    loadProfile()
+  }, [])
 
   return (
     <View style={styles.navContainer}>
-      <Creation />
       <View style={styles.navBar}>
         <TouchableOpacity onPress={() => goTo('Mic')} style={styles.iconBehave} >
           <Feather name='mic' size={27} color={buttonState == 'Mic' ? "#FF9432" : "#fff"} />

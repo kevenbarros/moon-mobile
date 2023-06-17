@@ -1,38 +1,44 @@
 import * as React from 'react';
 import { Text, View, StyleSheet, StatusBar, TouchableOpacity, Image } from 'react-native';
-import Header from '../../components/header/Header'
 import { Dimensions } from 'react-native';
-import NotData from './NotData/index'
-import MyGoals from './MyGoals';
 const StatusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 10 : 64
 
-function Goals({ route, navigation }) {
-  const [data, setData] = React.useState([
-    { name: "Nome da meta", missingTimeYear: 3, finalGoal: 6000, goalAchieved: 1000, goalAchievedPercent: 80 },
-    { name: "Viagem", missingTimeYear: 3, finalGoal: 6000, goalAchieved: 1000, goalAchievedPercent: 100 },
-    { name: "Curso JavaScript", missingTimeYear: 3, finalGoal: 6000, goalAchieved: 1000, goalAchievedPercent: 30 },
-  ])
+function NotData({ navigation }) {
+  const [data, setData] = React.useState([])
   return (
-    <View style={styles.container}>
-      <Header picture={route.params?.profile?.picture || ""}></Header>
-      {
-        data.length > 0 ?
-          <MyGoals data={data} navigation={navigation}></MyGoals> :
-          <NotData navigation={navigation}></NotData>
-      }
-    </View>
+    <>
+      <View>
+        <View style={styles.boxImage}>
+          <Image
+            style={styles.img}
+            source={require('../../../imgs/metas.png')}
+          />
+        </View>
+        <View>
+          <Text style={styles.initialTitle}>
+            Até onde deseja chegar?
+          </Text>
+          <View style={styles.boxSubTitle}>
+            <Text style={styles.initialSubTitle}>
+              Para chegar a lua.
+            </Text>
+            <Text style={styles.initialSubTitle}>
+              você precisa de um planejamento antes!
+            </Text>
+          </View>
+          <View style={styles.submitBox}>
+            <TouchableOpacity style={styles.submit} onPress={() => navigation.navigate('NewGoals')}>
+              <Text style={styles.textSubmit}>Partiu, criar minhas metas</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </>
   );
 }
 
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-
-    paddingTop: StatusBarHeight,
-    paddingHorizontal: 25,
-    paddingBottom: 400,
-  },
   containerMonth: {
     flexDirection: 'row',
   },
@@ -42,6 +48,13 @@ const styles = StyleSheet.create({
   balancesAndExpenses: {
     flexDirection: 'row',
     justifyContent: 'space-between'
+  },
+  container: {
+    height: '100%',
+    paddingTop: StatusBarHeight,
+    paddingHorizontal: 25,
+    paddingBottom: 400,
+    backgroundColor: '#fff'
   },
   scrollView: {
   },
@@ -113,4 +126,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Goals
+export default NotData

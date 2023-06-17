@@ -1,35 +1,87 @@
 import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, Animated } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Animated, TouchableWithoutFeedback, Button, TouchableHighlight } from 'react-native';
 import { Feather } from '@expo/vector-icons'
 
 function Creation({ navigation }) {
-
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
   const [active, setActive] = React.useState(false)
-  function showModal() {
-    setActive(!active)
+  const [modal, setModal] = React.useState(false)
+
+  async function openModal() {
+    await setActive(!active)
+    fade()
+    if (active) {
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true
+      }).start();
+      return
+    }
+    Animated.timing(rotateAnim, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true
+    }).start();
+  };
+  function fade() {
+    if (!active) {
+      fadeIn()
+      return
+    }
+    fadeOut()
   }
+  const fadeIn = () => {
+    setModal(true)
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true
+    }).start();
+  };
+  const fadeOut = () => {
+    const time = setTimeout(() => setModal(!modal), 300)
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true
+    }).start();
+  };
+  let spin = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '45deg']
+  })
+  useEffect(() => {
+    Animated.timing(rotateAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true
+    }).start();
+  }, [])
   return (
     <View style={styles.box}>
       {
-        active &&
-        <View style={[styles.modal, styles.shadowProp]}>
+        modal &&
+        <Animated.View style={[styles.modal, styles.shadowProp, { opacity: fadeAnim }]}>
           <View>
-            <TouchableOpacity style={styles.modalButton}>
+            <TouchableOpacity style={styles.modalButton} onPress={() => navigation.navigate('CreateExpense')}>
               <View style={styles.modalIcon}><Feather name='minus' size={12} color="#fff" /></View>
               <Text style={styles.text}>Adicionar Despesa</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.modalButton} >
+            <TouchableOpacity onPress={() => navigation.navigate('AddGain')} style={styles.modalButton} >
               <View style={[styles.modalIcon, { backgroundColor: 'rgba(0, 152, 79, 0.4)' }]}><Feather name='plus' size={12} color="#fff" /></View>
               <Text style={styles.text}>Adicionar Ganho</Text>
             </TouchableOpacity>
           </View>
-        </View >
+        </Animated.View >
       }
-      <TouchableOpacity style={styles.boxButton} onPress={() => showModal()} >
-        <View style={active && styles.rotation}>
-          <Feather name='plus' size={28} color="#fff" />
-        </View>
-      </TouchableOpacity >
+      <TouchableHighlight style={styles.boxButton} onPress={async () => openModal()} >
+        <Animated.View style={[{ transform: [{ rotate: spin }] }
+        ]}>
+          <Feather name='x' size={28} color="#fff" />
+        </Animated.View>
+      </TouchableHighlight >
     </View >
 
   );
@@ -38,7 +90,9 @@ const styles = StyleSheet.create({
   box: {
     justifyContent: 'flex-end',
     alignItems: 'flex-end',
-    marginRight: 20,
+    position: 'absolute',
+    right: 20,
+    bottom: 60
   },
   modal: {
     width: 232,
@@ -49,7 +103,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 20,
-    shadowColor: '#52006A',
   },
   shadowProp: {
     shadowColor: '#171717',
@@ -84,11 +137,8 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 16,
     fontWeight: '400',
-    color: '#000000'
+    color: '#000000',
   },
-  rotation: {
-    transform: [{ rotate: "45deg" }],
-  }
 });
 
 export default Creation

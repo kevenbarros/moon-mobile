@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import MainTab from '../stacks/MainTab';
 import Login from '../pages/Login/index'
+import AddIncome from '../pages/AddIncome/index'
 import Register from '../pages/Register/index'
 import CreateExpense from '../pages/CreateExpense/index'
 import AddGain from '../pages/AddGain/index'
@@ -19,6 +20,7 @@ export default () => (
 
   >
     <Stack.Screen name="Login" component={Login} />
+    <Stack.Screen name="AddIncome" component={AddIncome} />
     <Stack.Screen name="CreateExpense" component={CreateExpense} />
     <Stack.Screen name="AddGain" component={AddGain} />
     <Stack.Screen name="Register" component={Register} />

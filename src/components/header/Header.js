@@ -1,19 +1,14 @@
 import * as React from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, Text } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
 
 function Header({ navigation, picture }) {
-  const { user, token, token_google, createExpenseLoading } = useSelector(
-    (state) => state.user
-  );
-  console.log("foto", picture)
+
   return (
     <View style={styles.box} >
       <Image
         style={styles.logo}
         source={require('../../imgs/logo.png')}
       />
-      {createExpenseLoading && <Text>oiii</Text>}
       <TouchableOpacity>
         <Image
           style={styles.perfil}

@@ -7,17 +7,16 @@ import { formateDate } from '../../helpers/common'
 import DropDownPicker from 'react-native-dropdown-picker';
 import { TextInput, Switch } from 'react-native-paper';
 import MaskInput, { Masks } from 'react-native-mask-input';
-import { useDispatch, useSelector } from 'react-redux';
 import { CreateNewExpense } from '../../service/expense';
 import Loading from '../../components/loading/Loading';
+import { Usercontext } from '../../context/TesteContext';
+import { useContext } from 'react';
 const StatusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 10 : 64
 
 function CreateExpense({ navigation }) {
   const window = useWindowDimensions();
-  const dispach = useDispatch();
-  const { user, token, token_google, createExpenseLoading } = useSelector(
-    (state) => state.user
-  );
+  const { fecthingNotLoading, user } = useContext(Usercontext)
+
   //loading
   const [loadingState, setLoadingState] = useState(false)
   // data de vencimento 
@@ -82,11 +81,11 @@ function CreateExpense({ navigation }) {
     setLoadingState(true)
     const teste = await CreateNewExpense({
       description: description,
-      value: -Number(accountValue.replace("R$", "").replace(",", ".")),
+      value: -Number(accountValue.replace("R$", "").replace(/\./g, "").replace(",", ".")),
       date: date,
       paymentConditions: paymenTerms,
       expensePayment: paid,
-      valueRecurrence: Number(accountValue.replace("R$", "").replace(",", ".")) / numberInstallments,
+      valueRecurrence: Number(accountValue.replace("R$", "").replace(/\./g, "").replace(",", ".")) / numberInstallments,
       category: "string",
       local: "string",
       qtdInstallments: 1,
@@ -98,6 +97,7 @@ function CreateExpense({ navigation }) {
     if (teste.status == 201) {
       navigation.navigate('MainTab')
     }
+    fecthingNotLoading()
     setLoadingState(false)
   }
 

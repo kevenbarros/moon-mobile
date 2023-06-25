@@ -1,26 +1,27 @@
 import * as React from 'react';
 import { Text, View, StyleSheet, StatusBar, Image, TouchableOpacity } from 'react-native';
 import Loading from '../../components/loading/Loading';
-
+import { Usercontext } from '../../context/TesteContext'
 import { useDispatch } from 'react-redux';
-import { fetchUsers, setToken, setTokenGoogle, tokenGoogleAuth } from '../../store/reducers/user';
 import { useSelector } from "react-redux";
 
 const StatusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 22 : 64
 
 
 import * as AuthSession from 'expo-auth-session'
-import { CheckUser, RegisterUser } from '../../service/user';
+import { CheckUser, LoginUser, RegisterUser } from '../../service/user';
+import { useContext } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const CLIENT_ID = "601601170178-lbbj728oads51iveqe0ukmdn9ta58o6p.apps.googleusercontent.com"
 const REDIRECT_URI = 'https://auth.expo.io/@kevenwilliam/moon-2-0'
 const RESPONSE_TYPE = 'token'
 const ESCOPO = encodeURI('profile email')
 const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${ESCOPO}`
+
 function Login({ navigation }) {
-  const dispach = useDispatch();
-  const { token, loading, token_google, user } = useSelector(
-    (state) => state.user
-  );
+
+  const { token, setToken, setLoadingLogin, loadingLogin, setUser } = useContext(Usercontext)
   function redirect() {
     navigation.navigate('MainTab', { token: "" })
   }
@@ -28,15 +29,62 @@ function Login({ navigation }) {
     try {
       const response = await AuthSession.startAsync({ authUrl })
       if (response.type) {
-        dispach(tokenGoogleAuth(response.params.access_token))
-        dispach(fetchUsers(response.params.access_token, redirect))
-
+        setToken(response.params.access_token)
+        fetchUsers(response.params.access_token, redirect)
       }
     } catch (err) {
       // gerar erro
       // navigation.navigate('MainTab')
     }
   }
+
+  async function fetchUsers(token, cb) {
+    setLoadingLogin(true)
+    const responseDataUser = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo?alt=json&access_token=${token}`)
+    const userInfo = await responseDataUser.json()
+    const objectUser = {
+      email: userInfo.email,
+      picture: userInfo.picture,
+      name: userInfo.name,
+      id_google: userInfo.id,
+      locale: userInfo.locale,
+      given_name: userInfo.given_name,
+      family_name: userInfo.family_name
+    }
+    setUser(objectUser);
+
+    const checkUserBack = await CheckUser({ id_google: objectUser.id_google })
+
+    if (!checkUserBack.data.checkUser) {
+      //register
+      console.log("register")
+      const register = await RegisterUser(objectUser)
+      const loginPosRegister = await LoginUser({ id_google: objectUser.id_google })
+      if (loginPosRegister.data.token) {
+        setUser(loginPosRegister.data.person);
+        setToken(loginPosRegister.data.token);
+        await AsyncStorage.setItem('@token', loginPosRegister.data.token)
+        await AsyncStorage.setItem('@token_google', token)
+        setLoadingLogin(false)
+      }
+      return navigation.navigate('AddIncome')
+    } else {
+      //login
+      console.log("login")
+      const login = await LoginUser({ id_google: objectUser.id_google })
+      if (login.data.token) {
+        setUser(login.data.person);
+        setToken(login.data.token);
+        await AsyncStorage.setItem('@token', login.data.token)
+        await AsyncStorage.setItem('@token_google', token)
+        if (login.data.person.wage === 0) {
+          return navigation.navigate('AddIncome')
+        }
+        cb()
+      }
+      setLoadingLogin(false)
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -61,7 +109,7 @@ function Login({ navigation }) {
         </TouchableOpacity> */}
       </View>
       <View style={styles.decoration}></View>
-      <Loading loading={loading} />
+      <Loading loading={loadingLogin} />
     </View>
   );
 }

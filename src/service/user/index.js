@@ -15,3 +15,7 @@ export const LoginUser = async (data) => {
 export const UserAll = async () => {
   return http.get("/user/getall")
 }
+
+export const UserIncomeSave = async (data) => {
+  return http.post("/user/save/wage", data)
+}

@@ -1,5 +1,9 @@
 import * as React from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, Text, SafeAreaView, FlatList } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, Text, SafeAreaView, FlatList } from 'react-native';
+import { useContext } from 'react';
+import { Usercontext } from '../../context/TesteContext'
+import { useRef } from 'react';
+import { useEffect } from 'react';
 
 const Month = [
   'Janeiro',
@@ -19,18 +23,26 @@ const Month = [
 ]
 
 function ScrollViewMonth({ navigation }) {
+  const { fecthingLoading, filterMonth, setFilterMonth } = useContext(Usercontext)
+  const flatListRef = useRef(null);
   const month = new Date().getMonth()
+
+  function layout() {
+    flatListRef.scrollToIndex({ index: 2 })
+  }
   return (
     <SafeAreaView>
       <ScrollView style={styles.scrollView} horizontal={true} showsHorizontalScrollIndicator={false}>
+        {/* <View onLayout={() => layout()}> */}
         <FlatList
-          style={styles.FlatList}
+          ref={flatListRef}
           data={Month}
           horizontal={true}
           keyExtractor={(item, index) => index}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item, index }) => <TouchableOpacity><Text style={month === index ? styles.currentMonth : styles.TextMonth}>{item}</Text></TouchableOpacity>}
+          renderItem={({ item, index }) => <TouchableOpacity ><Text style={month === index ? styles.currentMonth : styles.TextMonth}>{item}</Text></TouchableOpacity>}
         />
+        {/* </View> */}
       </ScrollView>
     </SafeAreaView >
   );
@@ -46,7 +58,7 @@ const styles = StyleSheet.create({
     color: '#8A8A8A'
   },
   currentMonth: {
-    color: '#5B5959',
+    color: '#008F98',
     fontSize: 16,
     fontWeight: '600',
     marginHorizontal: 20,

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Text, View, StyleSheet, StatusBar, FlatList, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
-import { useSelector } from "react-redux";
 import Creation from "../../components/creation/Creation"
 import ScrollViewMonth from '../../components/scrollView/ScrollViewMonth';
 import { Feather } from '@expo/vector-icons'
@@ -9,33 +8,18 @@ import Header from '../../components/header/Header'
 import HighlightedField from '../../components/highlightedField/HighlightedField'
 import NoData from '../../components/noData/NoData'
 import List from '../../components/list/List';
-import { ListGoals } from '../../service/goals';
-import { ListExpense } from '../../service/expense';
 import Loading from '../../components/loading/Loading';
+import { useContext } from 'react';
+import { Usercontext } from '../../context/TesteContext'
+
 const StatusBarHeight = StatusBar.currentHeight ? StatusBar.currentHeight + 10 : 64
 
 function Home({ route, navigation }) {
-  const { user, token, token_google, createExpenseLoading } = useSelector(
-    (state) => state.user
-  );
-  const [data, setData] = React.useState([])
-  const [loadingState, setLoadingState] = React.useState(false)
-  async function fecthingLoading() {
-    setLoadingState(true)
-    const responseGoals = await ListGoals(user._id)
-    const responseExpense = await ListExpense({ "id_user": user._id })
-    setData(responseExpense.data)
-    setLoadingState(false)
-  }
-  async function fecthingNotLoading() {
-    const responseGoals = await ListGoals(user._id)
-    const responseExpense = await ListExpense({ "id_user": user._id })
-    setData(responseExpense.data)
-  }
+  const { user, fecthingLoading, fecthingNotLoading, listGeneralData, loadingGeneral } = useContext(Usercontext)
 
   React.useEffect(() => {
     if (route && route?.name === "Home") {
-      if (!data.length) {
+      if (listGeneralData && !listGeneralData.length) {
         fecthingLoading()
       } else {
         fecthingNotLoading()
@@ -67,11 +51,11 @@ function Home({ route, navigation }) {
       <View style={styles.line}></View>
       <View style={styles.decoration}></View>
       {
-        data.length === 0 ? <NoData /> :
+        listGeneralData.length === 0 ? <NoData /> :
           <SafeAreaView>
             <ScrollView showsVerticalScrollIndicator={false}>
               <FlatList
-                data={data}
+                data={listGeneralData}
                 keyExtractor={(item, index) => index}
                 showsVerticalScrollIndicator={true}
                 renderItem={({ item, index }) => <List label={item.description} value={item.value} key={index} />}
@@ -79,7 +63,7 @@ function Home({ route, navigation }) {
           </SafeAreaView>
       }
       <Creation navigation={navigation}></Creation>
-      <Loading loading={loadingState} />
+      <Loading loading={loadingGeneral} />
     </View>
   );
 }

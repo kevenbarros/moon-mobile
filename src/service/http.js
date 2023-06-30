@@ -44,7 +44,7 @@ function interceptorsResponseError(error) {
   }
   return erro;
 }
-const baseUrl = "http://fc6d-2804-14c-598f-9548-28b2-383-2004-b10c.ngrok-free.app/" //"https://backend-moon-2.vercel.app/";
+const baseUrl = "https://backend-moon-2.vercel.app/"//"http://fc6d-2804-14c-598f-9548-28b2-383-2004-b10c.ngrok-free.app/" //"https://backend-moon-2.vercel.app/";
 const api = axios.create({
   baseURL: baseUrl,
 });
